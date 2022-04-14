@@ -9,7 +9,9 @@ module BridgetownDato
       raise "Missing DatoCMS site API token!" if token.blank?
 
       generator do
-        klasses.each do |klass| expose_documents(klass) end
+        site.data[:dato] = klasses.reduce({}) do |hash, klass|
+          hash.merge documents(klass)
+        end
       end
     end
 
@@ -19,18 +21,18 @@ module BridgetownDato
       BridgetownDato::Document.descendants
     end
 
-    def expose_documents(klass)
-      type = klass.name.split('::').last.underscore
-      docs = documents(type)
+    def documents(klass)
+      type = klass.name.split("::").last.underscore
+      docs = items(type)
 
       if docs.is_a? Array
-        site.data[type.pluralize] = docs.map { |doc| klass.new(doc) }
+        { type.pluralize => docs.map { |doc| klass.new(doc) } }
       else
-        site.data[type] = klass.new(docs)
+        { type => klass.new(docs) }
       end
     end
 
-    def documents(type)
+    def items(type)
       client.items.all(nested: true, all_pages: true, filter: { type: type })
     end
 
