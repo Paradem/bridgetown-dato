@@ -12,12 +12,14 @@ module BridgetownDato
       @singleton || false
     end
 
-    def self.field(key, type = :text)
+    def self.field(key, type: :markdown, path: key)
       define_method key do
+        content = raw_document.dig(*[path].flatten)
+
         if respond_to? type
-          send(type, raw_document[key])
+          send(type, content)
         else
-          raw_document[key]
+          content
         end
       end
     end
@@ -26,7 +28,7 @@ module BridgetownDato
       self.raw_document = raw_document
     end
 
-    def text(content)
+    def markdown(content)
       content
     end
 
