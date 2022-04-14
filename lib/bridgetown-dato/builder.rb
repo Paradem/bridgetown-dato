@@ -18,7 +18,7 @@ module BridgetownDato
     private
 
     def klasses
-      BridgetownDato::Document.descendants
+      BridgetownDato::Document.subclasses
     end
 
     def documents(klass)
