@@ -4,6 +4,14 @@ module BridgetownDato
   class Document
     attr_accessor :raw_document
 
+    def self.singleton!
+      @singleton = true
+    end
+
+    def self.singleton?
+      @singleton || false
+    end
+
     def self.field(key, type = :text)
       define_method key do
         if respond_to? type

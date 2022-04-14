@@ -25,10 +25,10 @@ module BridgetownDato
       type = klass.name.split("::").last.underscore
       docs = items(type)
 
-      if docs.is_a? Array
-        { type.pluralize => docs.map { |doc| klass.new(doc) } }
+      if klass.singleton?
+        { type => klass.new(docs.first) }
       else
-        { type => klass.new(docs) }
+        { type.pluralize => docs.map { |doc| klass.new(doc) } }
       end
     end
 
