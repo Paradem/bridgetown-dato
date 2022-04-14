@@ -22,13 +22,12 @@ module BridgetownDato
     end
 
     def documents(klass)
-      type = klass.name.split("::").last.underscore
-      docs = items(type)
+      docs = items(klass.model)
 
       if klass.singleton?
-        { type => klass.new(docs.first) }
+        { klass.model => klass.new(docs.first).to_h }
       else
-        { type.pluralize => docs.map { |doc| klass.new(doc) } }
+        { klass.model.pluralize => docs.map { |doc| klass.new(doc).to_h } }
       end
     end
 
