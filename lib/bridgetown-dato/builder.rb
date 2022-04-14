@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'dato/site/client'
-require 'dotenv'
+require "dato/site/client"
+require "dotenv"
 
 module BridgetownDato
   class Builder < Bridgetown::Builder
