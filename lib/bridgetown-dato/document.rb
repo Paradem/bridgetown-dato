@@ -65,9 +65,5 @@ module BridgetownDato
     def markdown(content)
       content
     end
-
-    def timestamp(content)
-      Time.parse(content)
-    end
   end
 end
