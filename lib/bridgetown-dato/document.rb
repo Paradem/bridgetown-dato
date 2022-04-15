@@ -42,6 +42,16 @@ module BridgetownDato
       end
     end
 
+    field :meta_created_at, path: %w[meta created_at]
+    field :meta_current_version, path: %w[meta current_version]
+    field :meta_first_published_at, path: %w[meta first_published_at]
+    field :meta_is_valid, path: %w[meta is_valid]
+    field :meta_publication_scheduled_at, path: %w[meta publication_scheduled_at]
+    field :meta_published_at, path: %w[meta published_at]
+    field :meta_status, path: %w[meta status]
+    field :meta_unpublishing_scheduled_at, path: %w[meta unpublishing_scheduled_at]
+    field :meta_updated_at, path: %w[meta updated_at]
+
     def initialize(raw_document)
       self.raw_document = raw_document
     end
