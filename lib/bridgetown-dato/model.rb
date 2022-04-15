@@ -48,6 +48,14 @@ module BridgetownDato
       @singleton || false
     end
 
+    def self.dato_name!(name)
+      @dato_name = name
+    end
+
+    def self.dato_name
+      @dato_name || model_name
+    end
+
     def initialize(raw_model)
       self.raw_model = raw_model
     end

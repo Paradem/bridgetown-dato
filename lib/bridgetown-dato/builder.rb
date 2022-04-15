@@ -24,7 +24,7 @@ module BridgetownDato
     end
 
     def models(klass)
-      docs = items(klass.model_name)
+      docs = items(klass.dato_name)
 
       if klass.singleton?
         { klass.model_name => klass.new(docs.first).to_h }
