@@ -14,17 +14,12 @@ module BridgetownDato
       BridgetownDato::Schema.fields(model_name)
     end
 
-    def self.field(key, type: :markdown, path: key)
+    def self.field(key, map: nil, path: key)
       BridgetownDato::Schema.add_field(model_name, key)
 
       define_method key do
         content = raw_model.dig(*[path].flatten)
-
-        if respond_to? type
-          send(type, content)
-        else
-          content
-        end
+        map_content(content, map)
       end
     end
 
@@ -66,7 +61,13 @@ module BridgetownDato
       end
     end
 
-    def markdown(content)
+    def map_content(content, map)
+      return content if map.blank?
+
+      return map.call(content) if map.respond_to?(:call)
+      return send(map, content) if respond_to?(map)
+      return content.send(map) if content.respond_to?(map)
+
       content
     end
   end
