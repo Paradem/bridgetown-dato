@@ -3,6 +3,8 @@
 require "dato/site/client"
 require "dotenv"
 
+require "bridgetown-dato/model"
+
 module BridgetownDato
   class Builder < Bridgetown::Builder
     def build
@@ -10,7 +12,7 @@ module BridgetownDato
 
       generator do
         site.data[:dato] = klasses.reduce({}) do |hash, klass|
-          hash.merge documents(klass)
+          hash.merge models(klass)
         end
       end
     end
@@ -18,16 +20,16 @@ module BridgetownDato
     private
 
     def klasses
-      BridgetownDato::Document.subclasses
+      BridgetownDato::Model.subclasses
     end
 
-    def documents(klass)
-      docs = items(klass.model)
+    def models(klass)
+      docs = items(klass.model_name)
 
       if klass.singleton?
-        { klass.model => klass.new(docs.first).to_h }
+        { klass.model_name => klass.new(docs.first).to_h }
       else
-        { klass.model.pluralize => docs.map { |doc| klass.new(doc).to_h } }
+        { klass.model_name.pluralize => docs.map { |doc| klass.new(doc).to_h } }
       end
     end
 

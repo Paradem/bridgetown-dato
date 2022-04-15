@@ -1,11 +1,17 @@
 # frozen_string_literal: true
 
-module BridgetownDato
-  class Document
-    attr_accessor :raw_document
+require "bridgetown-dato/schema"
 
-    def self.model
+module BridgetownDato
+  class Model
+    attr_accessor :raw_model
+
+    def self.model_name
       name.split("::").last.underscore
+    end
+
+    def self.fields
+      BridgetownDato::Schema.fields(model_name)
     end
 
     def self.singleton!
@@ -16,23 +22,11 @@ module BridgetownDato
       @singleton || false
     end
 
-    def self.schema
-      @@schema ||= Hash.new([]) # rubocop:disable Style/ClassVars
-    end
-
-    def self.fields
-      schema[model]
-    end
-
-    def self.add_field(key)
-      fields << key
-    end
-
     def self.field(key, type: :markdown, path: key)
-      add_field(key)
+      BridgetownDato::Schema.add_field(model_name, key)
 
       define_method key do
-        content = raw_document.dig(*[path].flatten)
+        content = raw_model.dig(*[path].flatten)
 
         if respond_to? type
           send(type, content)
@@ -52,8 +46,8 @@ module BridgetownDato
     field :meta_unpublishing_scheduled_at, path: %w[meta unpublishing_scheduled_at]
     field :meta_updated_at, path: %w[meta updated_at]
 
-    def initialize(raw_document)
-      self.raw_document = raw_document
+    def initialize(raw_model)
+      self.raw_model = raw_model
     end
 
     def to_h
