@@ -14,12 +14,12 @@ module BridgetownDato
       BridgetownDato::Schema.fields(model_name)
     end
 
-    def self.field(key, map: nil, path: key)
+    def self.field(key, map: nil, path: key, localized: false)
       BridgetownDato::Schema.add_field(model_name, key)
 
       define_method key do
         content = raw_model.dig(*[path].flatten)
-        map_content(content, map)
+        map_field(content, map, localized)
       end
     end
 
@@ -59,6 +59,24 @@ module BridgetownDato
       @to_h ||= self.class.fields.reduce({}) do |hash, field|
         hash.merge(field => send(field))
       end
+    end
+
+    def map_field(content, map, localized)
+      if localized
+        content.map { |k, v| [k, map_localized_content(k, v, map)] }.to_h
+      else
+        map_content(content, map)
+      end
+    end
+
+    def map_localized_content(lang, content, map)
+      return content if map.blank?
+
+      return map.call(content, lang) if map.respond_to?(:call)
+      return send(map, content, lang) if respond_to?(map)
+      return content.send(map) if content.respond_to?(map)
+
+      content
     end
 
     def map_content(content, map)
