@@ -12,19 +12,33 @@ module BridgetownDato
       raise "Missing DatoCMS site API token!" if token.blank?
 
       generator do
-        site.data[:dato] = {}
-
-        I18n.available_locales.each do |locale|
-          I18n.with_locale(locale) do
-            site.data[:dato][locale] = klasses.reduce({}) do |hash, klass|
-              hash.merge models(klass)
-            end
-          end
-        end
+        site.data[:dato] = if localize?
+                             localized_data
+                           else
+                             data
+                           end
       end
     end
 
     private
+
+    def localize?
+      I18n.available_locales.size != 1
+    end
+
+    def localized_data
+      I18n.available_locales.each do |locale|
+        I18n.with_locale(locale) do
+          { [locale] => data }
+        end
+      end
+    end
+
+    def data
+      klasses.reduce({}) do |hash, klass|
+        hash.merge models(klass)
+      end
+    end
 
     def klasses
       BridgetownDato::Model.subclasses
