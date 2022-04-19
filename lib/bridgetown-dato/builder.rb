@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "dato/site/client"
+require "dato/local/loader"
 require "dotenv"
 
 require "bridgetown-dato/model"
@@ -24,21 +25,20 @@ module BridgetownDato
     end
 
     def models(klass)
-      docs = items(klass.dato_name)
-
-      if klass.singleton?
-        { klass.model_name => klass.new(docs.first).to_h }
-      else
-        { klass.model_name.pluralize => docs.map { |doc| klass.new(doc).to_h } }
+      if collections.respond_to?(klass.dato_name.pluralize)
+        items = collections.send(klass.dato_name.pluralize)
+        { klass.model_name.pluralize => items.map { |item| klass.new(item).to_h } }
+      elsif collections.respond_to?(klass.dato_name)
+        item = collections.send(klass.dato_name)
+        { klass.model_name => klass.new(item).to_h }
       end
     end
 
-    def items(type)
-      client.items.all(nested: true, all_pages: true, filter: { type: type })
-    end
-
-    def client
-      @client ||= ::Dato::Site::Client.new(token)
+    def collections
+      @collections ||= Dato::Local::Loader.new(
+        ::Dato::Site::Client.new(token),
+        false
+      ).load
     end
 
     def token
