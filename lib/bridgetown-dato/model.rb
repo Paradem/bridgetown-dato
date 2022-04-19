@@ -19,7 +19,7 @@ module BridgetownDato
 
       define_method key do
         content = raw_model.dig(*[path].flatten)
-        map_content(content, map, localized)
+        map_content(content, map)
       end
     end
 

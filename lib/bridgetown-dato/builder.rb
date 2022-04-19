@@ -27,11 +27,11 @@ module BridgetownDato
     end
 
     def localized_data
-      I18n.available_locales.each do |locale|
+      I18n.available_locales.map do |locale|
         I18n.with_locale(locale) do
-          { [locale] => data }
+          [locale, data]
         end
-      end
+      end.to_h
     end
 
     def data
