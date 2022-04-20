@@ -4,61 +4,37 @@ require "dato/site/client"
 require "dato/local/loader"
 require "dotenv"
 
-require "bridgetown-dato/model"
-
 module BridgetownDato
   class Builder < Bridgetown::Builder
+    CONFIG_DEFAULTS = {
+      dato_config: {
+        live_reload: true,
+        preview_mode: false,
+      },
+    }.freeze
+
     def build
       raise "Missing DatoCMS site API token!" if token.blank?
 
       generator do
-        site.data[:dato] = if localize?
-                             localized_data
-                           else
-                             data
-                           end
+        site.data[:dato] = loader.load
+        live_reload! if config[:dato_config][:live_reload]
       end
     end
 
     private
 
-    def localize?
-      I18n.available_locales.size != 1
-    end
-
-    def localized_data
-      I18n.available_locales.map do |locale|
-        I18n.with_locale(locale) do
-          [locale, data]
-        end
-      end.to_h
-    end
-
-    def data
-      klasses.reduce({}) do |hash, klass|
-        hash.merge models(klass)
+    def live_reload!
+      loader.watch do
+        Bridgetown::Watcher.reload_site(site, config)
       end
     end
 
-    def klasses
-      BridgetownDato::Model.subclasses
-    end
-
-    def models(klass)
-      if collections.respond_to?(klass.dato_name.pluralize)
-        items = collections.send(klass.dato_name.pluralize)
-        { klass.model_name.pluralize => items.map { |item| klass.new(item).to_h } }
-      elsif collections.respond_to?(klass.dato_name)
-        item = collections.send(klass.dato_name)
-        { klass.model_name => klass.new(item).to_h }
-      end
-    end
-
-    def collections
-      @collections ||= Dato::Local::Loader.new(
+    def loader
+      @loader ||= Dato::Local::Loader.new(
         ::Dato::Site::Client.new(token),
-        false
-      ).load
+        config[:dato_config][:preview_mode]
+      )
     end
 
     def token
