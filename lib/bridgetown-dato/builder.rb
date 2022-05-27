@@ -12,13 +12,10 @@ module BridgetownDato
     attr_accessor :data
 
     def loader(config)
-      @loader ||= begin
-        Bridgetown.logger.info("rage")
-        Dato::Local::Loader.new(
-          ::Dato::Site::Client.new(token),
-          config[:dato_config][:preview_mode]
-        )
-      end
+      @loader ||= Dato::Local::Loader.new(
+        ::Dato::Site::Client.new(token),
+        config[:dato_config][:preview_mode]
+      )
     end
 
     def load(config)
